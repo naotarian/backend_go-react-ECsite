@@ -7,18 +7,23 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	// "net/http"
+	"ec_site/model"
 	"github.com/joho/godotenv"
 	"os"
 	"time"
 )
 
 func main() {
-	_, err := sqlConnect()
+	db, err := sqlConnect()
 	if err != nil {
 		panic(err.Error())
 	} else {
 		fmt.Println("DB接続成功")
 	}
+	//マイグレーション処理
+	db.AutoMigrate(
+		&model.User{},
+	)
 
 	r := gin.Default()
 
