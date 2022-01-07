@@ -22,8 +22,14 @@ func main() {
 	}
 	//マイグレーション処理
 	db.AutoMigrate(
+		&model.Product{},
+	)
+	db.AutoMigrate(
 		&model.User{},
 	)
+
+	//テーブル削除処理
+	// db.DropTable(&model.User{})
 
 	r := gin.Default()
 
