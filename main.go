@@ -30,6 +30,7 @@ func main() {
 
 	//テーブル削除処理
 	// db.DropTable(&model.User{})
+	// db.DropTable(&model.Product{})
 
 	r := gin.Default()
 
@@ -47,23 +48,21 @@ func main() {
 	config.AllowCredentials = false
 	config.MaxAge = 24 * time.Hour
 	r.Use(cors.New(config))
+	api := r.Group("/api")
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "top root.",
 		})
 	})
-	r.GET("/api", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "api root.",
-		})
-	})
+	api.GET("/get_product", GetProducts)
 	r.GET("/test", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "test root.",
 		})
 	})
-	// r.GET("/add", AddDatas)
+	r.GET("/add", AddDatas)
+	// api.GET("/get_product", handler.myFunction)
 	r.Run(":8080")
 }
 
@@ -81,40 +80,54 @@ func sqlConnect() (database *gorm.DB, err error) {
 	DBNAME := os.Getenv("DBNAME")
 
 	// CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
-	CONNECT := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", USER, PASS, PROTOCOL, DBNAME)
+	CONNECT := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", USER, PASS, PROTOCOL, DBNAME)
 	return gorm.Open(DBMS, CONNECT)
 }
 
-// func AddDatas(c *gin.Context) {
-// 	// db接続
-// 	db, err := sqlConnect()
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-// 	defer db.Close()
-// 	error := db.Create(&Users{
-// 		Name:     "テスト太郎",
-// 		Age:      18,
-// 		Address:  "東京都千代田区",
-// 		UpdateAt: getDate(),
-// 	}).Error
-// 	if error != nil {
-// 		fmt.Println(error)
-// 	} else {
-// 		fmt.Println("データ追加成功")
-// 	}
-// }
+func AddDatas(c *gin.Context) {
+	// db接続
+	db, err := sqlConnect()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
 
-// func getDate() string {
-// 	const layout = "2006-01-02 15:04:05"
-// 	now := time.Now()
-// 	return now.Format(layout)
-// }
+	// user := &model.User{}
+	// user.ID = 0
+	// user.Name = "test_user"
+	// db.Create(&user)
+	error := db.Create(&model.Product{
+		ID:                  0,
+		UserId:              1,
+		ProductName:         "テスト商品",
+		ProductIntroduction: "これは完全なるテスト商品です。",
+		Price:               3980,
+	}).Error
+	if error != nil {
+		fmt.Println(error)
+	} else {
+		fmt.Println("データ追加成功")
+	}
+}
 
-// type Users struct {
-// 	ID       int
-// 	Name     string `json:"name"`
-// 	Age      int    `json:"age"`
-// 	Address  string `json:"address"`
-// 	UpdateAt string `json:"updateAt" sql:"not null;type:date"`
-// }
+func GetProducts(c *gin.Context) {
+	db, err := sqlConnect()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	products := []model.Product{}
+	db.Find(&products)
+	// for _, user := range users {
+	// 	fmt.Println(user.Name)
+	// }
+	c.JSON(200, gin.H{
+		"message": products,
+	})
+}
+
+func getDate() string {
+	const layout = "2006-01-02 15:04:05"
+	now := time.Now()
+	return now.Format(layout)
+}
