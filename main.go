@@ -99,8 +99,8 @@ func AddDatas(c *gin.Context) {
 	error := db.Create(&model.Product{
 		ID:                  0,
 		UserId:              1,
-		ProductName:         "テスト商品",
-		ProductIntroduction: "これは完全なるテスト商品です。",
+		ProductName:         "【追加予約】BEAMS HEART / キルティング フードコート アウター",
+		ProductIntroduction: "これは完全なるテスト商品です。これは完全なるテスト商品です。これは完全なるテスト商品です。",
 		Price:               3980,
 	}).Error
 	if error != nil {
