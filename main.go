@@ -62,6 +62,7 @@ func main() {
 		})
 	})
 	r.GET("/add", AddDatas)
+	api.POST("get_item", GetItem)
 	// api.GET("/get_product", handler.myFunction)
 	r.Run(":8080")
 }
@@ -118,6 +119,21 @@ func GetProducts(c *gin.Context) {
 	defer db.Close()
 	products := []model.Product{}
 	db.Find(&products)
+	// for _, user := range users {
+	// 	fmt.Println(user.Name)
+	// }
+	c.JSON(200, gin.H{
+		"message": products,
+	})
+}
+func GetItem(c *gin.Context) {
+	db, err := sqlConnect()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	products := []model.Product{}
+	db.First(&products)
 	// for _, user := range users {
 	// 	fmt.Println(user.Name)
 	// }
